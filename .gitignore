@@ -1,0 +1,21 @@
+node_modules
+.next
+.open-next
+build
+dist
+
+# env
+.env
+.env.local
+.env.*.local
+
+# payload — local media cache (real files live in Supabase Storage)
+/media
+
+# local DB backups / data dumps — never commit (contains data)
+/backups
+
+# misc
+*.tsbuildinfo
+next-env.d.ts
+.DS_Store
