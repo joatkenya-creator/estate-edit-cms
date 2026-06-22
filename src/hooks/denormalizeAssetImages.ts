@@ -13,13 +13,18 @@ export const mediaPublicUrl = (filename: string): string => {
   return `${base}/storage/v1/object/public/${bucket}/${prefix}/${encodeURIComponent(filename)}`
 }
 
-type GalleryItem = { image?: unknown; alt?: string | null }
+type GalleryItem = { image?: unknown; alt?: string | null; is_cover?: boolean | null }
 
 /**
  * Denormalizes an asset's gallery (array of Media uploads) into two columns the
  * public Cloudflare site reads with simple single-column queries:
- *   - primary_image_url : text  (cover image — first gallery item)
- *   - gallery           : jsonb ([{ url, alt }, ...] in order)
+ *   - primary_image_url : text  (cover image)
+ *   - gallery           : jsonb ([{ url, alt }, ...], cover first)
+ *
+ * Cover selection: the image ticked "Use as thumbnail" (is_cover) is used as the
+ * cover and is moved to the front of the gallery so it leads the public detail
+ * page too. If none is ticked, the first image is the cover — which means a
+ * single-image asset is automatically its own thumbnail.
  *
  * This means the public site never has to join the Media collection or read a
  * Payload relationship table — it just reads these columns off the asset row.
@@ -33,6 +38,8 @@ export const denormalizeAssetImages: CollectionBeforeChangeHook = async ({ data,
 
   const gallery = data.images as GalleryItem[]
   const resolved: { url: string; alt: string }[] = []
+  // Index (within `resolved`) of the image the editor flagged as the thumbnail.
+  let coverIndex = -1
 
   for (const item of gallery) {
     if (!item?.image) continue
@@ -60,10 +67,19 @@ export const denormalizeAssetImages: CollectionBeforeChangeHook = async ({ data,
     }
 
     if (!filename) continue
+    // First ticked image wins if the editor flagged more than one.
+    if (item.is_cover && coverIndex === -1) coverIndex = resolved.length
     resolved.push({
       url: mediaPublicUrl(filename),
       alt: item.alt || mediaAlt || (data?.title as string) || '',
     })
+  }
+
+  // Move the chosen cover (if any) to the front so it leads both the card
+  // thumbnail and the detail-page gallery.
+  if (coverIndex > 0) {
+    const [cover] = resolved.splice(coverIndex, 1)
+    resolved.unshift(cover)
   }
 
   return {

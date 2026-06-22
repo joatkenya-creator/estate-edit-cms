@@ -70,6 +70,23 @@ export const Assets: CollectionConfig = {
       ],
     },
     {
+      name: 'category_other',
+      type: 'text',
+      label: 'Custom category',
+      admin: {
+        // Only shown when "Other" is the selected category.
+        condition: (data) => data?.category === 'other',
+        description: 'Type the specific category — shown on the site instead of "Other".',
+      },
+      // Required only when the field is visible (category === 'other').
+      validate: (value: string | null | undefined, { data }: { data: { category?: string } }) => {
+        if (data?.category === 'other' && !value?.trim()) {
+          return 'Please type the custom category.'
+        }
+        return true
+      },
+    },
+    {
       type: 'row',
       fields: [
         {
@@ -144,10 +161,23 @@ export const Assets: CollectionConfig = {
       label: 'Gallery',
       labels: { singular: 'Image', plural: 'Images' },
       admin: {
-        description: 'Ordered gallery. The first image becomes the cover. Saving rebuilds the public image URLs.',
+        description:
+          'Ordered gallery. Tick "Use as thumbnail" on one image to set the cover; otherwise the first image is used. A single image is automatically the thumbnail. Saving rebuilds the public image URLs.',
       },
       fields: [
-        { name: 'image', type: 'upload', relationTo: 'media', required: true },
+        {
+          type: 'row',
+          fields: [
+            { name: 'image', type: 'upload', relationTo: 'media', required: true },
+            {
+              name: 'is_cover',
+              type: 'checkbox',
+              label: 'Use as thumbnail',
+              defaultValue: false,
+              admin: { width: '160px' },
+            },
+          ],
+        },
         { name: 'alt', type: 'text' },
       ],
     },
