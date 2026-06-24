@@ -7,6 +7,7 @@ import {
   assetCategoryOptions,
   assetConditionOptions,
   assetStatusOptions,
+  deliveryTierOptions,
   serviceDivisionOptions,
 } from '../fields/options'
 
@@ -179,6 +180,32 @@ export const Assets: CollectionConfig = {
           ],
         },
         { name: 'alt', type: 'text' },
+      ],
+    },
+    {
+      type: 'collapsible',
+      label: 'Delivery & handling',
+      admin: { initCollapsed: true },
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            {
+              name: 'delivery_tier',
+              type: 'select',
+              defaultValue: 'standard',
+              options: deliveryTierOptions,
+              admin: { description: 'Size/weight band — adds a handling surcharge at checkout.' },
+            },
+            {
+              name: 'fragile',
+              type: 'checkbox',
+              label: 'Fragile (extra care)',
+              defaultValue: false,
+              admin: { description: 'Adds the fragile surcharge.' },
+            },
+          ],
+        },
       ],
     },
     // ----- Sidebar / denormalized + flags -----

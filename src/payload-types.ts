@@ -212,6 +212,14 @@ export interface Asset {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Size/weight band — adds a handling surcharge at checkout.
+   */
+  delivery_tier?: ('standard' | 'medium' | 'large' | 'bulky') | null;
+  /**
+   * Adds the fragile surcharge.
+   */
+  fragile?: boolean | null;
   is_featured?: boolean | null;
   sort_order?: number | null;
   /**
@@ -733,6 +741,8 @@ export interface AssetsSelect<T extends boolean = true> {
         alt?: T;
         id?: T;
       };
+  delivery_tier?: T;
+  fragile?: T;
   is_featured?: T;
   sort_order?: T;
   primary_image_url?: T;
@@ -1013,7 +1023,7 @@ export interface Delivery {
    */
   details?: string | null;
   /**
-   * Default countrywide fee (KES) when no county rate matches.
+   * Default county/distance base (KES) when no per-county rate is set.
    */
   flat_fee?: number | null;
   /**
@@ -1021,7 +1031,7 @@ export interface Delivery {
    */
   free_above?: number | null;
   /**
-   * Optional overrides, e.g. { "Nairobi": 300, "Mombasa": 800 }. Falls back to the flat fee.
+   * Distance base per county, e.g. { "Nairobi": 800, "Mombasa": 1500 }. Falls back to the base fee.
    */
   county_rates?:
     | {
@@ -1032,6 +1042,22 @@ export interface Delivery {
     | number
     | boolean
     | null;
+  /**
+   * Handling add-on per item size tier, e.g. { "standard": 0, "medium": 400, "large": 800, "bulky": 1500 }.
+   */
+  tier_surcharges?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * Extra (KES) added when an item is marked fragile.
+   */
+  fragile_surcharge?: number | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1046,6 +1072,8 @@ export interface DeliverySelect<T extends boolean = true> {
   flat_fee?: T;
   free_above?: T;
   county_rates?: T;
+  tier_surcharges?: T;
+  fragile_surcharge?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

@@ -43,9 +43,9 @@ export const Delivery: GlobalConfig = {
         {
           name: 'flat_fee',
           type: 'number',
-          label: 'Flat delivery fee',
-          defaultValue: 0,
-          admin: { description: 'Default countrywide fee (KES) when no county rate matches.' },
+          label: 'Base fee (county)',
+          defaultValue: 800,
+          admin: { description: 'Default county/distance base (KES) when no per-county rate is set.' },
         },
         {
           name: 'free_above',
@@ -58,10 +58,27 @@ export const Delivery: GlobalConfig = {
     {
       name: 'county_rates',
       type: 'json',
-      label: 'Per-county rates',
+      label: 'Per-county base rates',
+      defaultValue: { Nairobi: 800 },
       admin: {
-        description: 'Optional overrides, e.g. { "Nairobi": 300, "Mombasa": 800 }. Falls back to the flat fee.',
+        description: 'Distance base per county, e.g. { "Nairobi": 800, "Mombasa": 1500 }. Falls back to the base fee.',
       },
+    },
+    {
+      name: 'tier_surcharges',
+      type: 'json',
+      label: 'Size / weight surcharges',
+      defaultValue: { standard: 0, medium: 400, large: 800, bulky: 1500 },
+      admin: {
+        description: 'Handling add-on per item size tier, e.g. { "standard": 0, "medium": 400, "large": 800, "bulky": 1500 }.',
+      },
+    },
+    {
+      name: 'fragile_surcharge',
+      type: 'number',
+      label: 'Fragile surcharge',
+      defaultValue: 500,
+      admin: { description: 'Extra (KES) added when an item is marked fragile.' },
     },
   ],
 }

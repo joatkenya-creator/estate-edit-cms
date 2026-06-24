@@ -79,6 +79,15 @@ export const inquiryStatusOptions: Option[] = [
   o('archived', 'Archived'),
 ]
 
+// ----- Delivery handling (Phase 2) -----
+
+export const deliveryTierOptions: Option[] = [
+  o('standard', 'Standard (small / light)'),
+  o('medium', 'Medium'),
+  o('large', 'Large'),
+  o('bulky', 'Bulky (appliance / furniture)'),
+]
+
 // ----- Orders (Phase 2) -----
 
 export const orderStatusOptions: Option[] = [

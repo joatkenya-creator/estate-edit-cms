@@ -1,6 +1,7 @@
 import * as migration_20260617_115704_initial from './20260617_115704_initial';
 import * as migration_20260622_000000_asset_cover_and_custom_category from './20260622_000000_asset_cover_and_custom_category';
 import * as migration_20260624_112942_phase2_orders_delivery from './20260624_112942_phase2_orders_delivery';
+import * as migration_20260624_143833_delivery_pricing from './20260624_143833_delivery_pricing';
 
 export const migrations = [
   {
@@ -16,6 +17,11 @@ export const migrations = [
   {
     up: migration_20260624_112942_phase2_orders_delivery.up,
     down: migration_20260624_112942_phase2_orders_delivery.down,
-    name: '20260624_112942_phase2_orders_delivery'
+    name: '20260624_112942_phase2_orders_delivery',
+  },
+  {
+    up: migration_20260624_143833_delivery_pricing.up,
+    down: migration_20260624_143833_delivery_pricing.down,
+    name: '20260624_143833_delivery_pricing'
   },
 ];
