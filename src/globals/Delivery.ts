@@ -59,9 +59,22 @@ export const Delivery: GlobalConfig = {
       name: 'county_rates',
       type: 'json',
       label: 'Per-county base rates',
-      defaultValue: { Nairobi: 800 },
+      // Distance-based base fees for all 47 counties, anchored at the Nairobi
+      // 800 floor and scaled by distance using Fargo/G4S domestic rate shape.
+      defaultValue: {
+        Nairobi: 800, Kiambu: 950, Kajiado: 950, Machakos: 1050, Makueni: 1150,
+        "Murang'a": 950, Kirinyaga: 1050, Nyandarua: 1050, Nyeri: 1100, Laikipia: 1300,
+        Embu: 1100, "Tharaka-Nithi": 1200, Meru: 1150, Kitui: 1200, Nakuru: 950,
+        Narok: 1050, Bomet: 1250, Kericho: 1200, Nandi: 1400, "Uasin Gishu": 1150,
+        "Elgeyo-Marakwet": 1300, Baringo: 1300, "Trans Nzoia": 1400, "West Pokot": 1600,
+        Samburu: 1800, Turkana: 2500, Kakamega: 1200, Vihiga: 1250, Bungoma: 1450,
+        Busia: 1450, Siaya: 1350, Kisumu: 1250, "Homa Bay": 1400, Migori: 1500,
+        Kisii: 1250, Nyamira: 1300, Mombasa: 1500, Kwale: 1650, Kilifi: 1600,
+        "Tana River": 1900, Lamu: 2000, "Taita-Taveta": 1500, Garissa: 2000,
+        Wajir: 2500, Mandera: 2800, Marsabit: 2300, Isiolo: 1500,
+      },
       admin: {
-        description: 'Distance base per county, e.g. { "Nairobi": 800, "Mombasa": 1500 }. Falls back to the base fee.',
+        description: 'Distance base per county (KSh). Falls back to the base fee. Tune any value freely.',
       },
     },
     {
