@@ -79,6 +79,29 @@ export const inquiryStatusOptions: Option[] = [
   o('archived', 'Archived'),
 ]
 
+// ----- Orders (Phase 2) -----
+
+export const orderStatusOptions: Option[] = [
+  o('pending', 'Pending'),
+  o('confirmed', 'Confirmed'),
+  o('dispatched', 'Dispatched'),
+  o('delivered', 'Delivered'),
+  o('cancelled', 'Cancelled'),
+]
+
+export const paymentStatusOptions: Option[] = [
+  o('unpaid', 'Unpaid'),
+  o('partial', 'Part-paid'),
+  o('paid', 'Paid'),
+]
+
+export const paymentMethodOptions: Option[] = [
+  o('pay_on_delivery', 'Pay on delivery (cash)'),
+  o('mpesa', 'M-Pesa'),
+  o('cash', 'Cash'),
+  o('bank_transfer', 'Bank transfer'),
+]
+
 export const clientSegmentOptions: Option[] = [
   o('individual', 'Individual'),
   o('family', 'Family'),

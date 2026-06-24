@@ -15,6 +15,8 @@ import { Services } from './collections/Services'
 import { Testimonials } from './collections/Testimonials'
 import { SiteStats } from './collections/SiteStats'
 import { Inquiries } from './collections/Inquiries'
+import { Orders } from './collections/Orders'
+import { Delivery } from './globals/Delivery'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -41,12 +43,14 @@ export default buildConfig({
     Services,
     Testimonials,
     SiteStats,
-    // Leads
+    // Leads + sales
     Inquiries,
+    Orders,
     // Library + auth
     Media,
     Users,
   ],
+  globals: [Delivery],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

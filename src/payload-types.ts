@@ -73,6 +73,7 @@ export interface Config {
     testimonials: Testimonial;
     site_stats: SiteStat;
     inquiries: Inquiry;
+    orders: Order;
     media: Media;
     users: User;
     'payload-kv': PayloadKv;
@@ -88,6 +89,7 @@ export interface Config {
     testimonials: TestimonialsSelect<false> | TestimonialsSelect<true>;
     site_stats: SiteStatsSelect<false> | SiteStatsSelect<true>;
     inquiries: InquiriesSelect<false> | InquiriesSelect<true>;
+    orders: OrdersSelect<false> | OrdersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -99,8 +101,12 @@ export interface Config {
     defaultIDType: string;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    delivery: Delivery;
+  };
+  globalsSelect: {
+    delivery: DeliverySelect<false> | DeliverySelect<true>;
+  };
   locale: null;
   widgets: {
     collections: CollectionsWidget;
@@ -157,6 +163,10 @@ export interface Asset {
     | 'inventory'
     | 'office'
     | 'other';
+  /**
+   * Type the specific category — shown on the site instead of "Other".
+   */
+  category_other?: string | null;
   status: 'available' | 'reserved' | 'pending' | 'sold' | 'withdrawn';
   condition?: ('new' | 'excellent' | 'very_good' | 'good' | 'fair') | null;
   price?: number | null;
@@ -192,11 +202,12 @@ export interface Asset {
     | boolean
     | null;
   /**
-   * Ordered gallery. The first image becomes the cover. Saving rebuilds the public image URLs.
+   * Ordered gallery. Tick "Use as thumbnail" on one image to set the cover; otherwise the first image is used. A single image is automatically the thumbnail. Saving rebuilds the public image URLs.
    */
   images?:
     | {
         image: string | Media;
+        is_cover?: boolean | null;
         alt?: string | null;
         id?: string | null;
       }[]
@@ -471,6 +482,96 @@ export interface Inquiry {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders".
+ */
+export interface Order {
+  id: string;
+  /**
+   * Auto-generated (EE-XXXXXX).
+   */
+  order_number?: string | null;
+  /**
+   * Fulfilment stage.
+   */
+  status: 'pending' | 'confirmed' | 'dispatched' | 'delivered' | 'cancelled';
+  full_name: string;
+  phone: string;
+  email?: string | null;
+  /**
+   * Used to price delivery.
+   */
+  county?: string | null;
+  town?: string | null;
+  address?: string | null;
+  delivery_notes?: string | null;
+  /**
+   * Cart lines: [{ title, slug, price, quantity, image_url }]. Written at checkout.
+   */
+  items?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * Sum of item lines.
+   */
+  subtotal?: number | null;
+  /**
+   * Countrywide delivery charge.
+   */
+  delivery_fee?: number | null;
+  /**
+   * subtotal + delivery.
+   */
+  total?: number | null;
+  currency?: string | null;
+  /**
+   * Derived from payments below.
+   */
+  payment_status?: ('unpaid' | 'partial' | 'paid') | null;
+  amount_paid?: number | null;
+  /**
+   * Record each payment received after delivery. Updates amount paid + status.
+   */
+  payments?:
+    | {
+        amount: number;
+        method?: ('pay_on_delivery' | 'mpesa' | 'cash' | 'bank_transfer') | null;
+        paid_at?: string | null;
+        /**
+         * M-Pesa code / receipt no.
+         */
+        reference?: string | null;
+        note?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * When fully paid.
+   */
+  paid_at?: string | null;
+  /**
+   * Page / CTA the order came from.
+   */
+  source?: string | null;
+  metadata?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
@@ -548,6 +649,10 @@ export interface PayloadLockedDocument {
         value: string | Inquiry;
       } | null)
     | ({
+        relationTo: 'orders';
+        value: string | Order;
+      } | null)
+    | ({
         relationTo: 'media';
         value: string | Media;
       } | null)
@@ -607,6 +712,7 @@ export interface AssetsSelect<T extends boolean = true> {
   description?: T;
   division?: T;
   category?: T;
+  category_other?: T;
   status?: T;
   condition?: T;
   price?: T;
@@ -623,6 +729,7 @@ export interface AssetsSelect<T extends boolean = true> {
     | T
     | {
         image?: T;
+        is_cover?: T;
         alt?: T;
         id?: T;
       };
@@ -730,6 +837,43 @@ export interface InquiriesSelect<T extends boolean = true> {
   estimated_value?: T;
   estimated_currency?: T;
   consent?: T;
+  source?: T;
+  metadata?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders_select".
+ */
+export interface OrdersSelect<T extends boolean = true> {
+  order_number?: T;
+  status?: T;
+  full_name?: T;
+  phone?: T;
+  email?: T;
+  county?: T;
+  town?: T;
+  address?: T;
+  delivery_notes?: T;
+  items?: T;
+  subtotal?: T;
+  delivery_fee?: T;
+  total?: T;
+  currency?: T;
+  payment_status?: T;
+  amount_paid?: T;
+  payments?:
+    | T
+    | {
+        amount?: T;
+        method?: T;
+        paid_at?: T;
+        reference?: T;
+        note?: T;
+        id?: T;
+      };
+  paid_at?: T;
   source?: T;
   metadata?: T;
   updatedAt?: T;
@@ -852,6 +996,59 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "delivery".
+ */
+export interface Delivery {
+  id: string;
+  enabled?: boolean | null;
+  /**
+   * Short line shown on product cards, detail pages and checkout.
+   */
+  message?: string | null;
+  /**
+   * Longer explanation shown on the Delivery & Returns section.
+   */
+  details?: string | null;
+  /**
+   * Default countrywide fee (KES) when no county rate matches.
+   */
+  flat_fee?: number | null;
+  /**
+   * Order subtotal (KES) at/above which delivery is free. Leave blank to disable.
+   */
+  free_above?: number | null;
+  /**
+   * Optional overrides, e.g. { "Nairobi": 300, "Mombasa": 800 }. Falls back to the flat fee.
+   */
+  county_rates?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "delivery_select".
+ */
+export interface DeliverySelect<T extends boolean = true> {
+  enabled?: T;
+  message?: T;
+  details?: T;
+  flat_fee?: T;
+  free_above?: T;
+  county_rates?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
