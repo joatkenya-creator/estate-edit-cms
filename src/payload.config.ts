@@ -2,6 +2,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { postgresAdapter } from '@payloadcms/db-postgres'
+import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { s3Storage } from '@payloadcms/storage-s3'
 import { buildConfig } from 'payload'
@@ -28,7 +29,33 @@ const allowedOrigins = (process.env.PAYLOAD_PUBLIC_ALLOWED_ORIGINS ?? '')
 
 const mediaPrefix = process.env.SUPABASE_MEDIA_PREFIX ?? 'media'
 
+// --- Email transport ---------------------------------------------------------
+// Outbound mail: password resets, staff invites, and new-lead notifications.
+// Sends over SMTP (e.g. Gmail with an app password); the "from" identity
+// defaults to info@estateedit.org. When SMTP isn't configured (local dev), this
+// stays undefined and Payload logs emails to the console instead of sending.
+// skipVerify keeps the CMS booting even if SMTP creds are wrong — send errors
+// surface at send time rather than taking the whole admin down on startup.
+const smtpHost = process.env.SMTP_HOST
+const smtpUser = process.env.SMTP_USER
+const smtpPort = Number(process.env.SMTP_PORT || 465)
+const emailAdapter =
+  smtpHost && smtpUser
+    ? await nodemailerAdapter({
+        defaultFromName: process.env.EMAIL_FROM_NAME || 'The Estate Edit',
+        defaultFromAddress: process.env.EMAIL_FROM_ADDRESS || 'info@estateedit.org',
+        skipVerify: true,
+        transportOptions: {
+          host: smtpHost,
+          port: smtpPort,
+          secure: smtpPort === 465, // 465 = implicit TLS; 587 = STARTTLS
+          auth: { user: smtpUser, pass: process.env.SMTP_PASS },
+        },
+      })
+    : undefined
+
 export default buildConfig({
+  email: emailAdapter,
   serverURL: process.env.PAYLOAD_PUBLIC_SERVER_URL,
   admin: {
     user: Users.slug,
