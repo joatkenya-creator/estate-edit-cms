@@ -11,6 +11,16 @@ import type { Option } from 'payload'
 
 const o = (value: string, label: string): Option => ({ value, label })
 
+/**
+ * Market — which storefront an asset/order belongs to. Drives currency (KES vs
+ * USD), the delivery model (Kenya counties vs Virginia localities), and which
+ * region of the public site it appears in.
+ */
+export const marketOptions: Option[] = [
+  o('kenya', 'Kenya'),
+  o('virginia', 'Virginia (USA)'),
+]
+
 export const serviceDivisionOptions: Option[] = [
   o('estate_sales', 'Estate Sales'),
   o('commercial_liquidation', 'Commercial Liquidation'),
@@ -95,6 +105,7 @@ export const orderStatusOptions: Option[] = [
   o('confirmed', 'Confirmed'),
   o('dispatched', 'Dispatched'),
   o('delivered', 'Delivered'),
+  o('returned', 'Returned'),
   o('cancelled', 'Cancelled'),
 ]
 

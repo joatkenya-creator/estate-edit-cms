@@ -3,11 +3,13 @@ import type { CollectionConfig } from 'payload'
 import { isAuthenticated } from '../access/roles'
 import { slugField } from '../fields/slug'
 import { denormalizeAssetImages } from '../hooks/denormalizeAssetImages'
+import { currencyFromMarket } from '../hooks/currencyFromMarket'
 import {
   assetCategoryOptions,
   assetConditionOptions,
   assetStatusOptions,
   deliveryTierOptions,
+  marketOptions,
   serviceDivisionOptions,
 } from '../fields/options'
 
@@ -40,7 +42,7 @@ export const Assets: CollectionConfig = {
     delete: isAuthenticated,
   },
   hooks: {
-    beforeChange: [denormalizeAssetImages],
+    beforeChange: [currencyFromMarket, denormalizeAssetImages],
   },
   fields: [
     {
@@ -111,7 +113,16 @@ export const Assets: CollectionConfig = {
       type: 'row',
       fields: [
         { name: 'price', type: 'number', admin: { step: 1000 } },
-        { name: 'currency', type: 'text', defaultValue: 'KES', admin: { width: '120px' } },
+        {
+          name: 'currency',
+          type: 'text',
+          defaultValue: 'KES',
+          admin: {
+            width: '120px',
+            readOnly: true,
+            description: 'Set automatically from Market (Kenya = KES, Virginia = USD).',
+          },
+        },
         {
           name: 'price_on_request',
           type: 'checkbox',
@@ -209,6 +220,17 @@ export const Assets: CollectionConfig = {
       ],
     },
     // ----- Sidebar / denormalized + flags -----
+    {
+      name: 'market',
+      type: 'select',
+      required: true,
+      defaultValue: 'kenya',
+      options: marketOptions,
+      admin: {
+        position: 'sidebar',
+        description: 'Which storefront this item sells in. Drives currency, delivery, and the region it appears in.',
+      },
+    },
     {
       name: 'is_featured',
       type: 'checkbox',
