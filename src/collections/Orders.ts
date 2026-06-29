@@ -2,7 +2,9 @@ import type { CollectionConfig } from 'payload'
 
 import { isAdmin, isAuthenticated } from '../access/roles'
 import { orderComputed } from '../hooks/orderComputed'
+import { notifyOrderStatus } from '../hooks/notifyOrderStatus'
 import {
+  marketOptions,
   orderStatusOptions,
   paymentMethodOptions,
   paymentStatusOptions,
@@ -38,6 +40,7 @@ export const Orders: CollectionConfig = {
   },
   hooks: {
     beforeChange: [orderComputed],
+    afterChange: [notifyOrderStatus],
   },
   fields: [
     {
@@ -80,12 +83,34 @@ export const Orders: CollectionConfig = {
         {
           type: 'row',
           fields: [
-            { name: 'county', type: 'text', admin: { description: 'Used to price delivery.' } },
-            { name: 'town', type: 'text' },
+            {
+              name: 'county',
+              type: 'text',
+              admin: { description: 'County (Kenya) or locality (Virginia). Used to price delivery.' },
+            },
+            { name: 'town', type: 'text', label: 'Town / city' },
+          ],
+        },
+        {
+          type: 'row',
+          fields: [
+            { name: 'state', type: 'text', label: 'State (US)', admin: { description: 'US orders only.' } },
+            { name: 'postal_code', type: 'text', label: 'ZIP / postal code' },
+            { name: 'country', type: 'text', admin: { description: 'KE or US.' } },
           ],
         },
         { name: 'address', type: 'textarea' },
         { name: 'delivery_notes', type: 'textarea', label: 'Delivery notes' },
+        {
+          name: 'delivery_quote_pending',
+          type: 'checkbox',
+          label: 'Shipping quote pending',
+          defaultValue: false,
+          admin: {
+            description:
+              'Set at checkout for destinations outside Virginia: no delivery fee was charged; staff to quote shipping.',
+          },
+        },
       ],
     },
     {
@@ -115,10 +140,17 @@ export const Orders: CollectionConfig = {
       admin: { position: 'sidebar', readOnly: true, description: 'subtotal + delivery.' },
     },
     {
+      name: 'market',
+      type: 'select',
+      defaultValue: 'kenya',
+      options: marketOptions,
+      admin: { position: 'sidebar', readOnly: true, description: 'Storefront the order came from (set at checkout).' },
+    },
+    {
       name: 'currency',
       type: 'text',
       defaultValue: 'KES',
-      admin: { position: 'sidebar', width: '120px' },
+      admin: { position: 'sidebar', readOnly: true, width: '120px', description: 'Native to the market (KES / USD).' },
     },
     // ----- Payment ledger -----
     {
